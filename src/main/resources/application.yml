@@ -1,0 +1,57 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: payment-notification-service
+
+logging:
+  level:
+    root: INFO
+    com.paymentnotify: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# All demo-specific configuration lives under "app.*" — see
+# com.paymentnotify.config.* @ConfigurationProperties classes.
+app:
+  merchants:
+    ids: [amazon, flipkart, swiggy, zomato, myntra]
+  kafka:
+    partition-count: 8
+    partition-buffer-capacity: 2000
+  merchant-simulator:
+    port: 8099
+    worker-threads: 200
+  http-client:
+    connect-timeout-ms: 500
+    request-timeout-ms: 2000
+    max-connections-per-merchant: 20
+  failure-classification:
+    retryable-status-codes: [408, 429]
+    permanent-status-codes: [400, 401, 403, 404]
+  retry:
+    max-attempts: 6
+    base-delay-ms: 5000
+    backoff-multiplier: 4.5
+    max-delay-ms: 7200000
+    jitter-ratio: 0.2
+    queue-capacity: 200000
+    poll-batch-size: 200
+    poll-interval-ms: 200
+  circuit-breaker:
+    failure-rate-threshold: 0.5
+    sliding-window-size: 20
+    minimum-calls: 10
+    open-state-wait-ms: 15000
+    half-open-permitted-calls: 5
+  concurrency:
+    s2-consumer-threads-per-partition: 1
+    c2-worker-pool-size: 32
+    per-merchant-max-concurrency: 10
+  rate-limit:
+    per-merchant-permits-per-second: 200

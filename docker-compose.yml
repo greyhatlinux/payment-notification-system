@@ -1,0 +1,15 @@
+services:
+  payment-notification-service:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      # Override any app.* property from application.yml here, e.g.:
+      # APP_KAFKA_PARTITION-COUNT: "16"
+      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx512m"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s

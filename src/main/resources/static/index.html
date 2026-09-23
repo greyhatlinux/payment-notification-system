@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Notification System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Payment Notification System</h1>
+  <!-- <p>Kafka (mock) → S2 consumer → C1 synchronous delivery → merchant. On failure: scheduled retry queue → C2 workers → circuit breaker → merchant, or DLQ once attempts are exhausted.</p> -->
+</header>
+
+<section id="system-overview">
+  <h2>System Overview</h2>
+  <div class="stat-grid" id="system-stats"></div>
+</section>
+
+<section id="traffic-generator">
+  <h2>Traffic Generator</h2>
+  <div class="controls-row">
+    <div class="field">
+      <label for="tg-eps">Events / sec</label>
+      <input type="number" id="tg-eps" value="200" min="1">
+    </div>
+    <div class="field">
+      <label for="tg-duration">Duration (sec, blank = until stopped)</label>
+      <input type="number" id="tg-duration" min="1" placeholder="∞">
+    </div>
+    <div class="field" style="flex: 1; min-width: 260px;">
+      <label>Merchants (blank = all)</label>
+      <div class="merchant-checks" id="tg-merchants"></div>
+    </div>
+    <div class="field">
+      <button id="tg-start">Start</button>
+    </div>
+    <div class="field">
+      <button id="tg-stop" class="secondary">Stop</button>
+    </div>
+  </div>
+  <div class="status-line" id="tg-status">not running</div>
+</section>
+
+<section id="merchant-health">
+  <h2>Merchant Health</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th>Merchant</th><th>Status</th><th>Req/sec</th><th>Success %</th><th>Failure %</th>
+        <th>Avg Latency (ms)</th><th>Circuit Breaker</th><th>Active / Limit</th>
+      </tr>
+      </thead>
+      <tbody id="merchant-health-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="failure-injection">
+  <h2>Failure Injection</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th>Merchant</th><th>Mode</th><th>Failure %</th><th>Latency (ms)</th><th>4xx code</th><th></th>
+      </tr>
+      </thead>
+      <tbody id="failure-injection-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="retry-queue">
+  <h2>Retry Queue</h2>
+  <p class="muted" id="retry-queue-summary"></p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr><th>Payment ID</th><th>Merchant</th><th>Attempt</th><th>Next Attempt At</th><th>Last Failure</th></tr>
+      </thead>
+      <tbody id="retry-queue-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="dlq">
+  <h2>Dead Letter Queue</h2>
+  <p class="muted" id="dlq-summary"></p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr><th>Event ID</th><th>Payment ID</th><th>Merchant</th><th>Attempts</th><th>Failure Reason</th><th>Moved At</th></tr>
+      </thead>
+      <tbody id="dlq-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="recent-activity">
+  <h2>Recent Notifications</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr><th>Time</th><th>Path</th><th>Payment ID</th><th>Merchant</th><th>Attempt</th><th>Outcome</th><th>Latency (ms)</th></tr>
+      </thead>
+      <tbody id="history-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<p class="footer-note">Polling every 2s. Mock Kafka + in-memory retry queue — no external infrastructure required. See README for how this maps to real Kafka/Redis.</p>
+
+<script src="app.js"></script>
+</body>
+</html>
