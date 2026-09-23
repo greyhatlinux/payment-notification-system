@@ -18,23 +18,7 @@ actual Kafka and Redis.
 
 ## Architecture
 
-```
-                         NORMAL PATH (synchronous, latency-sensitive)
- Mock Kafka  ──▶  S2 Consumer  ──▶  C1 (sync delivery)  ──▶  MerchantClient ──▶ CircuitBreaker ──▶ Merchant
- (partitioned,     (1 thread per                                  │
-  ordered by        partition)                                    │ on failure (retryable)
-  paymentId)                                                      ▼
-                                                     FAILURE PATH (async, bounded)
-                                        Scheduled Retry Queue ──▶ RetryScheduler ──▶ C2 Worker Pool
-                                        (in-memory, time-ordered)  (1 poller thread)   (bounded pool)
-                                               ▲                                            │
-                                               │            same MerchantClient/CircuitBreaker
-                                               └──────── C2 failure reschedules same message ◀┘
-                                                                    │
-                                                     max attempts exhausted, or permanent (4xx) failure
-                                                                    ▼
-                                                                   DLQ
-```
+![Archicture](./assets/architecture-2.png)
 
 **C1 and C2 share the same per-merchant `MerchantGuard`** (circuit breaker +
 rate limiter + concurrency limiter), via a single `ResilientMerchantClient`

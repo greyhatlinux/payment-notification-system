@@ -281,6 +281,9 @@ the dashboard/API consume. Nothing here is written to a database.
 
 ---
 
+## Sreenshot for the service in Action : 
+![screenshot](./assets/screenshot1.png)
+
 ## 7. Tweaking parameters — steps and expected results
 
 ### 7.1 Traffic Generator (live — dashboard or API)
